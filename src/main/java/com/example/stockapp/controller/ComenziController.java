@@ -1,23 +1,32 @@
 package com.example.stockapp.controller;
 
-import com.example.stockapp.dto.ComenziDto;
-import com.example.stockapp.dto.ProduseListDto;
+import com.example.stockapp.dto.ProduseDto;
+import com.example.stockapp.model.StatusComanda;
+import com.example.stockapp.service.ComenziService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 
+import static com.example.stockapp.config.MessegeQueueConfig.REZULTATE_COMENZI;
+
+@Component
+@Slf4j
 @RequiredArgsConstructor
-@RestController
 public class ComenziController {
 
-    private RabbitTemplate rabbitTemplate;
-    private ProduseListDto produseListDto;
+    private final ComenziService comenziService;
+    private final RabbitTemplate rabbitTemplate;
+    private final DirectExchange exchange;
 
-    @PostMapping("COMENZI")
-    public String comenzi(@RequestBody ComenziDto comenziDto){
-        System.out.println(comenziDto.toString());
-        return "ok";
+    @RabbitListener(queues = "COMENZI")
+    public void messageListener(ProduseDto produseDto){
+    //log.info("Order recived : ",comenziDto );
+        StatusComanda comanda= comenziService.processOrder(produseDto);
+        rabbitTemplate.convertAndSend(exchange.getName(),REZULTATE_COMENZI,comanda);
+
     }
+
 }

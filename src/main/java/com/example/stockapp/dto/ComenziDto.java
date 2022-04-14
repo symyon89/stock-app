@@ -9,6 +9,6 @@ import java.util.List;
 @Data
 public class ComenziDto implements Serializable {
     private Integer id;
-    private List<ProduseDto> produse;
+    private ProduseDto produse;
     private StatusComanda statusComanda;
 }
