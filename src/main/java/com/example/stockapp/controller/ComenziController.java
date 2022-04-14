@@ -23,10 +23,11 @@ public class ComenziController {
 
     @RabbitListener(queues = "COMENZI")
     public void messageListener(ProduseDto produseDto){
-    //log.info("Order recived : ",comenziDto );
+    //log.info("Order recived : ",produseDto );
         StatusComanda comanda= comenziService.processOrder(produseDto);
         rabbitTemplate.convertAndSend(exchange.getName(),REZULTATE_COMENZI,comanda);
-
     }
+
+
 
 }
